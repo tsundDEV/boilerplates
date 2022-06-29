@@ -1,0 +1,29 @@
+version: "3"
+services:
+  code-server:
+    image: lscr.io/linuxserver/code-server:latest
+    container_name: code-server
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Europe/London
+      - PASSWORD=${PWD}
+      - SUDO_PASSWORD=${SUDO_PWD}
+      - PROXY_DOMAIN=${DOMAIN}
+      - DEFAULT_WORKSPACE=/config/workspace
+      - DOCKER_USER=$USER
+      - DOCKER_MODS=linuxserver/mods:code-server-python3|linuxserver/mods:code-server-nodejs|linuxserver/mods:code-server-dotnet
+    volumes:
+      - code-server:/config
+    restart: always
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.code-server.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.code-server.entrypoints=websecure"
+      - "traefik.http.routers.code-server.tls.certresolver=le"
+      
+networks:
+  proxy:
+    external: true

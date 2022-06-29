@@ -1,0 +1,24 @@
+version: "3"
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    networks:
+      - proxy
+    environment:
+      - TZ=Europe/London
+      - WEBUI_PORT=8080
+    volumes:
+      - qbt:/config
+      - downloads:/downloads
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.qbt.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.qbt.entrypoints=websecure"
+      - "traefik.http.routers.qbt.tls.certresolver=le"
+      - "traefik.http.services.qbt.loadbalancer.server.port=8080"
+
+networks:
+  proxy:
+    external: true

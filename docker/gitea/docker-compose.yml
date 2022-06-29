@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+  server:
+    image: gitea/gitea
+    container_name: gitea
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    restart: always
+    expose:
+       - "3000"
+    ports:
+       - "2222:22"
+    networks:
+      - proxy
+    volumes:
+      - gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gitea.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.gitea.entrypoints=websecure"
+      - "traefik.http.routers.gitea.tls.certresolver=le"
+      - "traefik.http.services.gitea-service.loadbalancer.server.port=3000"
+
+networks:
+  proxy:
+    external: true
